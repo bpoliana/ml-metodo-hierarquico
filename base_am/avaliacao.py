@@ -20,6 +20,7 @@ class Experimento():
         ClasseObjetivoOtimizacao: CLASSE a ser usada para otimização dos parametros
         """
         self.folds = folds
+        #resultados por folds
         self._resultados = None
         self.ml_method = ml_method
         self.ClasseObjetivoOtimizacao = ClasseObjetivoOtimizacao
