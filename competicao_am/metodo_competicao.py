@@ -80,8 +80,8 @@ class MetodoHierarquico(MetodoAprendizadoDeMaquina):
         y_treino, y_to_predict = self.obtem_y(df_treino, df_data_to_predict, col_classe, True)
         #print(f"x_treino: {y_treino} y_to_predict:{y_to_predict}")
         print(self.obj_class_prim_nivel.dic_int_to_nom_classe)
-        if self.bow:
-            x_treino, x_to_predict = gerar_atributos_lyrics(x_treino, x_to_predict)
+        # if self.bow:
+        #     x_treino, x_to_predict = gerar_atributos_lyrics(x_treino, x_to_predict)
         # seu respectivo predict  
         self.ml_method.fit(x_treino, y_treino)
         arr_predict_prim_nivel = self.ml_method.predict(x_to_predict)
@@ -126,8 +126,8 @@ class MetodoHierarquico(MetodoAprendizadoDeMaquina):
                     final_classe_nome = self.obj_class_prim_nivel.dic_int_to_nom_classe[val_predict]
                     arr_predict_final[pos_original] = self.obj_class_final.dic_nom_classe_to_int[final_classe_nome]
         
-        return y_to_predict_final, arr_predict_final
-class MetodoSimples(MetodoHierarquico):
+        return Resultado(y_to_predict, arr_predict_final)
+class MetodoSimples(MetodoAprendizadoDeMaquina): #nao seria metodo de aprendizado de maquina?? 
     def eval(self, df_treino:pd.DataFrame, df_data_to_predict:pd.DataFrame, col_classe:str, seed:int=1):
         self.obj_class_final.class_to_number(df_treino[col_classe])
         
@@ -137,11 +137,11 @@ class MetodoSimples(MetodoHierarquico):
         y_treino, y_to_predict = self.obtem_y(df_treino, df_data_to_predict, col_classe, False)
         #print(f"x_treino: {y_treino} y_to_predict:{y_to_predict}")
         print(self.obj_class_prim_nivel.dic_int_to_nom_classe)
-        if self.bow:
-            x_treino, x_to_predict = gerar_atributos_lyrics(x_treino, x_to_predict)
+        # if self.bow:
+        #     x_treino, x_to_predict = gerar_atributos_lyrics(x_treino, x_to_predict)
         # seu respectivo predict  
         self.ml_method.fit(x_treino, y_treino)
         arr_predict_prim_nivel = self.ml_method.predict(x_to_predict)
 
         print(f"Predict Primeiro nivel: {arr_predict_prim_nivel}")
-        return y_to_predict, arr_predict_prim_nivel
+        return Resultado(y_to_predict, arr_predict_prim_nivel)

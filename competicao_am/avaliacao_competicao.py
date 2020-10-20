@@ -20,7 +20,7 @@ class OtimizacaoObjetivoSVMCompeticao(OtimizacaoObjetivo):
 
         scikit_method = LinearSVC(C=2**exp_cost, random_state=2)
 
-        return MetodoHierarquico(scikit_method)
+        return MetodoHierarquico(scikit_method, "genre")
 
     def resultado_metrica_otimizacao(self,resultado: Resultado) -> float:
         return resultado.macro_f1
@@ -41,7 +41,7 @@ class OtimizacaoObjetivoRF(OtimizacaoObjetivo):
         clf_dtree = RandomForestClassifier(min_samples_split=min_samples,n_estimators=num_arvores,
                                             max_features=max_features,random_state=2)
 
-        return MetodoHierarquico(scikit_method)
+        return MetodoHierarquico(scikit_method, "genre")
 
     def resultado_metrica_otimizacao(self,resultado: Resultado) -> float:
         return resultado.macro_f1
