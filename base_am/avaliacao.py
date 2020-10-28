@@ -27,6 +27,7 @@ class Experimento():
         self.num_trials = num_trials
         self.sampler = sampler
         self.studies_per_fold = []
+        self.array_best_method_per_fold = []
 
     @property
     def resultados(self) -> List[Resultado]:
@@ -58,6 +59,7 @@ class Experimento():
                 #caso contrario, o metodo, atributo da classe Experimento (sem modificações) é usado
                 best_method = self.ml_method
 
+            self.array_best_method_per_fold.append(best_method)
             ##2. adiciona em resultados o resultado predito usando o melhor metodo
             resultado = best_method.eval(fold.df_treino,fold.df_data_to_predict,fold.col_classe)
             print(resultado.macro_f1)
@@ -71,6 +73,26 @@ class Experimento():
         """
         return np.average([r.macro_f1 for r in self.resultados])
 
+    @property
+    def precisao_avg(self) -> float:
+        """
+        Calcula a média da precisão dos resultados.
+        """
+        return np.average([r.precisao for r in self.resultados])
+
+    @property
+    def recovacao_avg(self) -> float:
+        """
+        Calcula a média da revocação dos resultados.
+        """
+        return np.average([r.revocacao for r in self.resultados])
+
+    @property
+    def acuracia_avg(self) -> float:
+        """
+        Calcula a média da acuracia dos resultados.
+        """
+        return np.average([r.acuracia for r in self.resultados])
 
 
 
