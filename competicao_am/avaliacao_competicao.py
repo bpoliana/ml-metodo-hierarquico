@@ -6,7 +6,10 @@ import optuna
 from sklearn.svm import LinearSVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.naive_bayes import GaussianNB
 
+TAM_AMOSTRA = 18000
+    
 
 class OtimizacaoObjetivoSVMCompeticao(OtimizacaoObjetivo):
     def __init__(self, fold:Fold):
@@ -48,20 +51,31 @@ class OtimizacaoObjetivoRF(OtimizacaoObjetivo):
         return resultado.macro_f1
 
 class OtimizacaoObjetivoKNN(OtimizacaoObjetivo):
-    TAM_AMOSTRA = 100
     
     def __init__(self, fold:Fold):
         super().__init__(fold)
+        
 
     def obtem_metodo(self,trial: optuna.Trial)->MetodoAprendizadoDeMaquina:
         #Um custo adequado para custo pode variar muito, por ex, para uma tarefa 
         #o valor de custo pode ser 10, para outra, 32000. 
         #Assim, normalmente, para conseguir valores mais distintos,
         #usamos c=2^exp_cost
-        
-        n_neighbors = trial.suggest_uniform('n_neighbors', 0.1, 0.4)
-        scikit_method = KNeighborsClassifier(n_neighbors=n_neighbors*TAM_AMOSTRA)
+        sample_size = 1000
+        n_neighbors = trial.suggest_int('n_neighbors', 0.1*sample_size, 0.4*sample_size)
+        scikit_method = KNeighborsClassifier(n_neighbors=n_neighbors)
 
+        return MetodoHierarquico(scikit_method, "genre")
+
+    def resultado_metrica_otimizacao(self,resultado: Resultado) -> float:
+        return resultado.macro_f1
+
+class OtimizacaoObjetivoNaiveBayes(OtimizacaoObjetivo):
+    def __init__(self, fold:Fold):
+        super().__init__(fold)
+
+    def obtem_metodo(self,trial: optuna.Trial)->MetodoAprendizadoDeMaquina:
+        scikit_method = GaussianNB()
         return MetodoHierarquico(scikit_method, "genre")
 
     def resultado_metrica_otimizacao(self,resultado: Resultado) -> float:
