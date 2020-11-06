@@ -1,6 +1,6 @@
 from base_am.metodo import MetodoAprendizadoDeMaquina
 import pandas as pd
-from .preprocessamento_atributos_competicao import gerar_atributos_ator, gerar_atributos_resumo
+from .preprocessamento_atributos_competicao import gerar_atributos_lyrics
 from base_am.resultado import Resultado
 from typing import Union, List
 from sklearn.base import ClassifierMixin, RegressorMixin
@@ -79,20 +79,24 @@ class MetodoHierarquico(MetodoAprendizadoDeMaquina):
         x_treino, x_to_predict = self.obtem_x(df_treino, df_data_to_predict, col_classe)
         y_treino, y_to_predict = self.obtem_y(df_treino, df_data_to_predict, col_classe, True)
         #print(f"x_treino: {y_treino} y_to_predict:{y_to_predict}")
-        print(self.obj_class_prim_nivel.dic_int_to_nom_classe)
-        # if self.bow:
-        #     x_treino, x_to_predict = gerar_atributos_lyrics(x_treino, x_to_predict)
-        # seu respectivo predict  
-        self.ml_method.fit(x_treino, y_treino)
-        arr_predict_prim_nivel = self.ml_method.predict(x_to_predict)
-        print(f"Predict Primeiro nivel: {arr_predict_prim_nivel}")
+        # print(self.obj_class_prim_nivel.dic_int_to_nom_classe)
+        is_bow = "is_bow" in df_treino
+        if is_bow:
+            df_treino_bow, df_to_predict_bow = gerar_atributos_lyrics(x_treino, x_to_predict)
+            self.ml_method.fit(df_treino_bow, y_treino)
+            arr_predict_prim_nivel = self.ml_method.predict(df_to_predict_bow)
+        else:
+            self.ml_method.fit(x_treino, y_treino)
+            arr_predict_prim_nivel = self.ml_method.predict(x_to_predict)
+
+        # print(f"Predict Primeiro nivel: {arr_predict_prim_nivel}")
         ################### Segundo nivel  ##########################
         arr_predict_final = [None for i in range(len(arr_predict_prim_nivel))]
         y_to_predict_final = df_data_to_predict[col_classe]
 
         #TODO: Usar value_counts para pegar apenas os que tem mais de uma classe no segundo n ivel
         for agrupamento in df_treino[self.col_classe_prim_nivel].unique(): 
-            print(f"Agrupamento: {agrupamento}")
+            # print(f"Agrupamento: {agrupamento}")
 
             #usa o segundo nivel apenas nos agrupamentos que efetivamente possuem mais de uma classe no segundo nivel
             df_treino_grupo = df_treino[df_treino[self.col_classe_prim_nivel]==agrupamento]
@@ -107,41 +111,40 @@ class MetodoHierarquico(MetodoAprendizadoDeMaquina):
                 self.obj_class_seg_nivel[agrupamento] = ClasseNumerica()
                 x_treino_grupo, x_to_predict_grupo = self.obtem_x(df_treino_grupo, df_data_to_predict_grupo, col_classe)
                 y_treino_grupo, y_to_predict_grupo = self.obtem_y(df_treino_grupo, df_data_to_predict_grupo, col_classe, False, agrupamento)
-                print(self.obj_class_seg_nivel[agrupamento].dic_int_to_nom_classe)
-                print(f"y treino: {y_treino_grupo} to predict: {y_to_predict_grupo}") 
+                # print(self.obj_class_seg_nivel[agrupamento].dic_int_to_nom_classe)
+                # print(f"y treino: {y_treino_grupo} to predict: {y_to_predict_grupo}") 
                 self.ml_method.fit(x_treino_grupo, y_treino_grupo)
                 arr_predict_grupo = self.ml_method.predict(x_to_predict_grupo)
-                print(f"Predições: {arr_predict_grupo}")                                            
+                # print(f"Predições: {arr_predict_grupo}")                                            
                 for pos_grupo,val_predict_grupo in enumerate(arr_predict_grupo):
                     pos_original = arr_pos_predict[pos_grupo]
-                    print(f"Posicao {pos_grupo} correspond a posicao {pos_original}")
+                    # print(f"Posicao {pos_grupo} correspond a posicao {pos_original}")
                     final_classe_nome = self.obj_class_seg_nivel[agrupamento].dic_int_to_nom_classe[val_predict_grupo]
                     
                     arr_predict_final[pos_original] = self.obj_class_final.dic_nom_classe_to_int[final_classe_nome]
                     
             else:
                 for pos,pos_original in enumerate(arr_pos_predict):
-                    print(pos_original)
+                    # print(pos_original)
                     val_predict = arr_predict_prim_nivel[pos_original]
                     final_classe_nome = self.obj_class_prim_nivel.dic_int_to_nom_classe[val_predict]
                     arr_predict_final[pos_original] = self.obj_class_final.dic_nom_classe_to_int[final_classe_nome]
         
         return Resultado(y_to_predict, arr_predict_final)
-class MetodoSimples(MetodoAprendizadoDeMaquina): #nao seria metodo de aprendizado de maquina?? 
+
+    
+class MetodoSimples(MetodoAprendizadoDeMaquina):
     def eval(self, df_treino:pd.DataFrame, df_data_to_predict:pd.DataFrame, col_classe:str, seed:int=1):
-        self.obj_class_final.class_to_number(df_treino[col_classe])
-        
-        #################### Primeiro Nivel #################################                                                    
         #separação da classe 
         x_treino, x_to_predict = self.obtem_x(df_treino, df_data_to_predict, col_classe)
-        y_treino, y_to_predict = self.obtem_y(df_treino, df_data_to_predict, col_classe, False)
-        #print(f"x_treino: {y_treino} y_to_predict:{y_to_predict}")
-        print(self.obj_class_prim_nivel.dic_int_to_nom_classe)
-        # if self.bow:
-        #     x_treino, x_to_predict = gerar_atributos_lyrics(x_treino, x_to_predict)
-        # seu respectivo predict  
-        self.ml_method.fit(x_treino, y_treino)
-        arr_predict_prim_nivel = self.ml_method.predict(x_to_predict)
+        y_treino, y_to_predict = self.obtem_y(df_treino, df_data_to_predict, col_classe)
 
-        print(f"Predict Primeiro nivel: {arr_predict_prim_nivel}")
-        return Resultado(y_to_predict, arr_predict_prim_nivel)
+        #geração dos atributos por meio do df_treino e df_data_to_predict
+        df_treino_bow, df_to_predict_bow = gerar_atributos_lyrics(x_treino, x_to_predict)
+
+        self.ml_method.fit(df_treino_bow, y_treino)
+        arr_predict = self.ml_method.predict(df_to_predict_bow)
+
+        #if y_to_predict:
+        #   print(classification_report(y_to_predict, arr_predict))
+        return y_to_predict, arr_predict
