@@ -93,7 +93,7 @@ class MetodoHierarquico(MetodoAprendizadoDeMaquina):
         # print(f"Predict Primeiro nivel: {arr_predict_prim_nivel}")
         ################### Segundo nivel  ##########################
         arr_predict_final = [None for i in range(len(arr_predict_prim_nivel))]
-        y_to_predict_final = df_data_to_predict[col_classe]
+        y_to_predict_final = self.obj_class_final.class_to_number(df_data_to_predict[col_classe])
 
         #TODO: Usar value_counts para pegar apenas os que tem mais de uma classe no segundo n ivel
         for agrupamento in df_treino[self.col_classe_prim_nivel].unique(): 
@@ -132,7 +132,9 @@ class MetodoHierarquico(MetodoAprendizadoDeMaquina):
                     arr_predict_final[pos_original] = self.obj_class_final.dic_nom_classe_to_int[final_classe_nome]
         # print(y_to_predict, arr_predict_final)
         # print("jasdiajsaiajdisajidjsa")
-        return Resultado(y_to_predict, arr_predict_final)
+
+        # print(arr_predict_final)
+        return Resultado(y_to_predict_final, arr_predict_final)
 
     
 class MetodoTradicional(MetodoAprendizadoDeMaquina):
@@ -175,7 +177,6 @@ class MetodoTradicional(MetodoAprendizadoDeMaquina):
         return y_treino,y_to_predict
 
     def obtem_x(self, df_treino:pd.DataFrame, df_data_to_predict:pd.DataFrame, col_classe:str):
-        
         x_treino = df_treino.drop(["index", col_classe, self.col_classe_prim_nivel] , axis = 1)
         x_to_predict = df_data_to_predict
         if col_classe in df_data_to_predict.columns:
