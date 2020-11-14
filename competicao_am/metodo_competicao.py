@@ -186,13 +186,13 @@ class MetodoTradicional(MetodoAprendizadoDeMaquina):
     def eval_bow(self, df_treino:pd.DataFrame, df_data_to_predict:pd.DataFrame, col_classe:str, seed:int=1):
         #separação da classe 
         x_treino, x_to_predict = self.obtem_x(df_treino, df_data_to_predict, col_classe)
-        y_treino, y_to_predict = self.obtem_y(df_treino, df_data_to_predict, col_classe)
+        y_treino, y_to_predict = self.obtem_y(df_treino, df_data_to_predict, col_classe, True)
         
 
         #geração dos atributos por meio do df_treino e df_data_to_predict
         df_treino_bow, df_to_predict_bow = gerar_atributos_lyrics(x_treino, x_to_predict)
-
-
+        print(df_treino_bow)
+        print(df_to_predict_bow)
         #treina e aplica os modelos de cada representação
         #o meotod fit altera o proprio objeto `ml_method`, por isso, temos que fazer um fit e depois
         # seu respectivo predict  
@@ -201,7 +201,9 @@ class MetodoTradicional(MetodoAprendizadoDeMaquina):
 
         #if y_to_predict:
         #   print(classification_report(y_to_predict, arr_predict))
-        return y_to_predict, arr_predict
+        return Resultado(y_to_predict, arr_predict)
+
+
     def combine_predictions(self, arr_predictions_1:List[int], arr_predictions_2:List[int]) -> List[int]:
         #realiza a predicao final
         #.. isso é apenas um exemplo de combinação, sem nenhuma justificativa do por que optei por isso
@@ -223,10 +225,12 @@ class MetodoTradicional(MetodoAprendizadoDeMaquina):
         x_treino, x_to_predict = self.obtem_x(df_treino, df_data_to_predict, col_classe)
         y_treino, y_to_predict = self.obtem_y(df_treino, df_data_to_predict, col_classe, True)
       
-       # is_bow = "is_bow" in df_treino
-        # if is_bow:
-        #     y_to_predict, arr_predictions_bow = self.eval_bow(df_treino, df_data_to_predict, col_classe)
-        
+        is_bow = "is_bow" in df_treino
+        if is_bow:
+            print('its boooooooooow')
+            result = self.eval_bow(df_treino, df_data_to_predict, col_classe,True)
+            return result
+
         self.ml_method.fit(x_treino, y_treino)
         arr_predict = self.ml_method.predict(x_to_predict)
 
