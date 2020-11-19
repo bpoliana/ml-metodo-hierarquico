@@ -1,5 +1,5 @@
 from base_am.resultado import Fold
-from base_am.avaliacao import Experimento, ExperimentoBOW
+from base_am.avaliacao import Experimento
 from competicao_am.metodo_competicao import MetodoHierarquico, MetodoTradicional
 from competicao_am.avaliacao_competicao import OtimizacaoObjetivoSVMCompeticao
 from sklearn.ensemble import RandomForestClassifier

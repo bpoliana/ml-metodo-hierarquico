@@ -51,7 +51,9 @@ class Experimento():
             if(self.ClasseObjetivoOtimizacao is not None):
                 study = optuna.create_study(sampler=self.sampler, direction="maximize")
                 objetivo_otimizacao = self.ClasseObjetivoOtimizacao(fold)
+                print('criando um study...')
                 study.optimize(objetivo_otimizacao, self.num_trials)
+                print('criou um study')
                 #obtem o melhor metodo da otimizacao
                 best_method = objetivo_otimizacao.arr_evaluated_methods[study.best_trial.number]
                 self.studies_per_fold.append(study)
