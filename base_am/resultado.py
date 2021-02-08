@@ -69,7 +69,7 @@ class Resultado():
                 self._precisao[classe] =  self.mat_confusao[classe][classe]/num_previstos_classe
             else:
                 self._precisao[classe] = 0
-                warnings.warn("Não há elementos previstos para a classe "+str(classe)+" precisão foi definida como zero.", UndefinedMetricWarning)
+                # warnings.warn("Não há elementos previstos para a classe "+str(classe)+" precisão foi definida como zero.", UndefinedMetricWarning)
         return self._precisao
     @property
     def revocacao(self) -> float:
